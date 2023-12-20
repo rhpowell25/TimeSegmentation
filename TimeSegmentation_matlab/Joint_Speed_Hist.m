@@ -1,4 +1,4 @@
-function [Speed_Violation_Ratio, Joint_Speed_Med] = Joint_Speed_Hist(xds, joint_name, Save_Figs)
+function [Speed_Violation_Ratio, Joint_Speed_Med] = Joint_Speed_Hist(xds, joint_name, Save_File)
 
 %% Basic settings, some variable extractions, & definitions
 
@@ -9,15 +9,11 @@ else
     N = find(strcmp(xds.joint_names, joint_name));
 end
 
-% Font specifications
-label_font_size = 20;
-title_font_size = 15;
-legend_font_size = 15;
-font_name = 'Arial';
+% Font & plotting specifications
+[Plot_Params] = Plot_Parameters;
 
-if ~isequal(Save_Figs, 0)
-    % Do you want a save title or blank title (1 = save_title, 0 = blank)
-    Fig_Save_Title = 1;
+if ~isequal(Save_File, 0)
+    close all
 end
 
 %% If the joint doesn't exist
@@ -61,17 +57,17 @@ figure
 hold on
 
 % Set the title
-hist_title = strcat('Joint Angular Velocity -', {' '}, strrep(char(xds.joint_names(N)), '_', ' '));
+Fig_Title = strcat('Joint Angular Velocity -', {' '}, strrep(char(xds.joint_names(N)), '_', ' '));
 if contains(xds.meta.rawFileName, 'Pre')
-    hist_title = strcat(hist_title, {' '}, '(Morning)');
+    Fig_Title = strcat(Fig_Title, {' '}, '(Morning)');
     hist_color = [0.9290, 0.6940, 0.1250];
 elseif contains(xds.meta.rawFileName, 'Post')
-    hist_title = strcat(hist_title, {' '}, '(Afternoon)');
+    Fig_Title = strcat(Fig_Title, {' '}, '(Afternoon)');
     hist_color = [.5 0 .5];
 else
     hist_color = [0, 0, 0];
 end
-title(hist_title, 'FontSize', title_font_size)
+title(Fig_Title, 'FontSize', Plot_Params.title_font_size)
 
 % Plot the histogram
 histogram(joint_speed, 'EdgeColor', 'k', 'FaceColor', hist_color)
@@ -79,8 +75,8 @@ histogram(joint_speed, 'EdgeColor', 'k', 'FaceColor', hist_color)
 set(gca,'yscale','log')
 
 % Axis Labels
-xlabel('Angular Velocity (deg./sec.)', 'FontSize', label_font_size)
-ylabel('Frames', 'FontSize', label_font_size)
+xlabel('Angular Velocity (deg./sec.)', 'FontSize', Plot_Params.label_font_size)
+ylabel('Frames', 'FontSize', Plot_Params.label_font_size)
 
 % Collect the current axis limits
 y_limits = ylim;
@@ -93,8 +89,8 @@ legend_string = {char(speed_violation_string)};
 ann_legend = annotation('textbox', legend_dims, 'String', legend_string, ... 
     'FitBoxToText', 'on', 'EdgeColor','none', ... 
     'verticalalignment', 'top', 'horizontalalignment', 'center');
-ann_legend.FontSize = legend_font_size;
-ann_legend.FontName = font_name;
+ann_legend.FontSize = Plot_Params.legend_size;
+ann_legend.FontName = Plot_Params.font_name;
 
 % Reset the axis limits
 xlim([x_limits(1),x_limits(2)])
@@ -106,32 +102,8 @@ Speed_Violation_Ratio*100, string(xds.joint_names{N}), max_speed);
 
 Speed_Violation_Ratio = double(min(Speed_Violation_Ratio));
 
-%% Define the save directory & save the figures
-if ~isequal(Save_Figs, 0)
-    save_dir = 'C:\Users\rhpow\Desktop\Post_Int\';
-    for ii = 1:length(findobj('type','figure'))
-        fig_info = get(gca,'title');
-        fig_title = get(fig_info, 'string');
-        fig_title = strrep(fig_title, ':', '');
-        fig_title = strrep(fig_title, 'vs.', 'vs');
-        fig_title = strrep(fig_title, 'mg.', 'mg');
-        fig_title = strrep(fig_title, 'kg.', 'kg');
-        fig_title = strrep(fig_title, '.', '_');
-        fig_title = strrep(fig_title, '/', '_');
-        if isequal(Fig_Save_Title, 0)
-            title '';
-        end
-        if strcmp(Save_Figs, 'All')
-            saveas(gcf, fullfile(save_dir, char(fig_title)), 'png')
-            saveas(gcf, fullfile(save_dir, char(fig_title)), 'pdf')
-            saveas(gcf, fullfile(save_dir, char(fig_title)), 'fig')
-        else
-            saveas(gcf, fullfile(save_dir, char(fig_title)), Save_Figs)
-        end
-        close gcf
-    end
-end
-
+%% Save the file if selected
+Save_Figs(Fig_Title, Save_File)
 
 
 

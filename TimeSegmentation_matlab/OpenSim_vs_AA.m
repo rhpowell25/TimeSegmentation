@@ -54,35 +54,30 @@ plot_time = 540;
 bin_size = mode(diff(xds.joint_angle_time_frame));
 plot_length = round(plot_time/bin_size);
 
-% Font specifications
-label_font_size = 15;
-legend_font_size = 12;
+% Font & plotting specifications
+[Plot_Params] = Plot_Parameters;
 legend_location = 'NorthEast';
-title_font_size = 15;
-figure_width = 750;
-figure_height = 250;
-font_name = 'Arial';
 
 %% Plotting
 
 Joint_figure = figure;
-Joint_figure.Position = [300 300 figure_width figure_height];
+Joint_figure.Position = [300 300 Plot_Params.fig_size Plot_Params.fig_size / 2];
 hold on
 
 % Titling the plot
 Joint_title = strrep(char(angle_name), '_', ' ');
-title(sprintf('Aajan Angles vs OpenSim, %s: %s', Joint_title), 'FontSize', title_font_size)
+title(sprintf('Aajan Angles vs OpenSim, %s: %s', Joint_title), 'FontSize', Plot_Params.title_font_size)
 
 % Labels
-ylabel('Joint Angles', 'FontSize', label_font_size);
-xlabel('Time (sec.)', 'FontSize', label_font_size);
+ylabel('Joint Angles', 'FontSize', Plot_Params.label_font_size);
+xlabel('Time (sec.)', 'FontSize', Plot_Params.label_font_size);
 
 % Plotting the angles
 plot(time_frame(1:plot_length), AA_joint_angles(1:plot_length), 'LineWidth', 2, 'Color', [.5 0 .5])
 plot(time_frame(1:plot_length), OpenSim_joint_angles(1:plot_length), 'LineWidth', 2, 'Color', [0 0 1])
 
 % Legend
-legend('AA', 'OSim', 'Location', legend_location, 'FontSize', legend_font_size)
+legend('AA', 'OSim', 'Location', legend_location, 'FontSize', Plot_Params.legend_size)
 % Remove the legend's outline
 legend boxoff
 
@@ -102,7 +97,7 @@ set(figure_axes,'TickDir','out');
 % Remove the top and right tick marks
 set(figure_axes,'box','off');
 % Set The Font
-set(figure_axes,'fontname', font_name);
+set(figure_axes,'fontname', Plot_Params.font_name);
 
 %% Cross Correlation
 %x_corr = xcorr(OpenSim_joint_angles(1:length(OpenSim_joint_angles)), ...
